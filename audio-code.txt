@@ -1,0 +1,883 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Audio</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #d9dbd5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 500px;
+    height: 95vh;
+    background: #efeae2;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+/* HEADER */
+
+.header {
+    height: 70px;
+    background: #008069;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 12px;
+}
+
+.header img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.header-info h3 {
+    font-size: 16px;
+}
+
+.header-info p {
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+/* MESSAGES */
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.received {
+    background: white;
+    align-self: flex-start;
+}
+
+.sent {
+    background: #d9fdd3;
+    align-self: flex-end;
+}
+
+.audio-play {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: #00a884;
+    color: white;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+.audio-info {
+    flex: 1;
+    min-width: 150px;
+}
+
+.waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 30px;
+}
+
+.waveform span {
+    width: 3px;
+    background: #8696a0;
+    border-radius: 5px;
+}
+
+.audio-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #667781;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.tick {
+    color: #53bdeb;
+    font-size: 13px;
+}
+
+/* INPUT AREA */
+
+.input-area {
+    min-height: 70px;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 8px;
+}
+
+.input-area input {
+    flex: 1;
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    padding: 13px 17px;
+    font-size: 15px;
+}
+
+.icon-button {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: #00a884;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.recording {
+    background: #e53935;
+}
+
+/* RECORDING PANEL */
+
+.recording-panel {
+    position: absolute;
+    bottom: 80px;
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    padding: 15px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.15);
+}
+
+.recording-panel.active {
+    display: flex;
+}
+
+.record-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: red;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.record-time {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.recording-text {
+    flex: 1;
+    color: #667781;
+}
+
+.delete-recording {
+    border: none;
+    background: transparent;
+    color: #e53935;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* RECORD PREVIEW */
+
+.preview {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.preview-box {
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.preview-box h2 {
+    margin-bottom: 20px;
+}
+
+.preview-audio {
+    width: 100%;
+}
+
+.preview-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.preview-buttons button {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.cancel {
+    background: #eee;
+}
+
+.send {
+    background: #00a884;
+    color: white;
+}
+
+/* MOBILE */
+
+@media(max-width: 500px) {
+
+    body {
+        background: white;
+    }
+
+    .app {
+        height: 100vh;
+    }
+
+    .recording-panel {
+        bottom: 70px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <img
+            src="https://i.pravatar.cc/100?img=11"
+        >
+
+        <div class="header-info">
+
+            <h3>Rahul</h3>
+
+            <p>online</p>
+
+        </div>
+
+        <div>⋮</div>
+
+    </div>
+
+
+    <!-- MESSAGES -->
+
+    <div class="messages" id="messages">
+
+        <!-- RECEIVED AUDIO -->
+
+        <div class="message received">
+
+            <button
+                class="audio-play"
+                onclick="toggleAudio(this)">
+                ▶
+            </button>
+
+            <div class="audio-info">
+
+                <div class="waveform">
+                    <span style="height:10px"></span>
+                    <span style="height:18px"></span>
+                    <span style="height:25px"></span>
+                    <span style="height:14px"></span>
+                    <span style="height:22px"></span>
+                    <span style="height:28px"></span>
+                    <span style="height:15px"></span>
+                    <span style="height:20px"></span>
+                    <span style="height:12px"></span>
+                    <span style="height:25px"></span>
+                    <span style="height:18px"></span>
+                    <span style="height:10px"></span>
+                </div>
+
+                <div class="audio-bottom">
+                    <span>0:08</span>
+                    <span>4:30 PM</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SENT AUDIO -->
+
+        <div class="message sent">
+
+            <button
+                class="audio-play"
+                onclick="toggleAudio(this)">
+                ▶
+            </button>
+
+            <div class="audio-info">
+
+                <div class="waveform">
+
+                    <span style="height:12px"></span>
+                    <span style="height:25px"></span>
+                    <span style="height:17px"></span>
+                    <span style="height:28px"></span>
+                    <span style="height:20px"></span>
+                    <span style="height:14px"></span>
+                    <span style="height:26px"></span>
+                    <span style="height:18px"></span>
+                    <span style="height:10px"></span>
+                    <span style="height:24px"></span>
+                    <span style="height:17px"></span>
+
+                </div>
+
+                <div class="audio-bottom">
+
+                    <span>0:05</span>
+
+                    <span>
+                        4:32 PM
+                        <span class="tick">✓✓</span>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RECORDING PANEL -->
+
+    <div
+        class="recording-panel"
+        id="recordingPanel">
+
+        <div class="record-dot"></div>
+
+        <div class="record-time"
+             id="recordTime">
+            0:00
+        </div>
+
+        <div class="recording-text">
+            Recording voice message...
+        </div>
+
+        <button
+            class="delete-recording"
+            onclick="cancelRecording()">
+            🗑
+        </button>
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="input-area">
+
+        <input
+            type="text"
+            placeholder="Type a message"
+            id="messageInput"
+        >
+
+        <button
+            class="icon-button"
+            id="micButton"
+            onclick="startRecording()">
+            🎙️
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- PREVIEW -->
+
+<div
+    class="preview"
+    id="preview">
+
+    <div class="preview-box">
+
+        <h2>Voice Message</h2>
+
+        <audio
+            id="previewAudio"
+            class="preview-audio"
+            controls>
+        </audio>
+
+        <div class="preview-buttons">
+
+            <button
+                class="cancel"
+                onclick="cancelPreview()">
+                Delete
+            </button>
+
+            <button
+                class="send"
+                onclick="sendAudio()">
+                Send
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let mediaRecorder;
+
+let audioChunks = [];
+
+let audioBlob;
+
+let audioURL;
+
+let recordingSeconds = 0;
+
+let recordingTimer;
+
+
+/* START RECORDING */
+
+async function startRecording() {
+
+    try {
+
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+
+        mediaRecorder =
+            new MediaRecorder(stream);
+
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable =
+            function(event) {
+
+                audioChunks.push(event.data);
+
+            };
+
+
+        mediaRecorder.onstop =
+            function() {
+
+                audioBlob =
+                    new Blob(audioChunks, {
+                        type: "audio/webm"
+                    });
+
+                audioURL =
+                    URL.createObjectURL(audioBlob);
+
+                document.getElementById(
+                    "previewAudio"
+                ).src = audioURL;
+
+                document.getElementById(
+                    "preview"
+                ).style.display = "flex";
+
+                stream.getTracks().forEach(
+                    track => track.stop()
+                );
+
+            };
+
+
+        mediaRecorder.start();
+
+        recordingSeconds = 0;
+
+        updateRecordingTime();
+
+        recordingTimer =
+            setInterval(updateRecordingTime, 1000);
+
+        document.getElementById(
+            "recordingPanel"
+        ).classList.add("active");
+
+        document.getElementById(
+            "micButton"
+        ).classList.add("recording");
+
+        document.getElementById(
+            "micButton"
+        ).textContent = "⏹";
+
+        document.getElementById(
+            "micButton"
+        ).onclick = stopRecording;
+
+    }
+
+    catch(error) {
+
+        alert(
+            "Microphone permission is required to record audio."
+        );
+
+    }
+
+}
+
+
+/* STOP RECORDING */
+
+function stopRecording() {
+
+    if (!mediaRecorder) {
+        return;
+    }
+
+    if (mediaRecorder.state !== "inactive") {
+
+        mediaRecorder.stop();
+
+    }
+
+    clearInterval(recordingTimer);
+
+    document.getElementById(
+        "recordingPanel"
+    ).classList.remove("active");
+
+    document.getElementById(
+        "micButton"
+    ).classList.remove("recording");
+
+    document.getElementById(
+        "micButton"
+    ).textContent = "🎙️";
+
+    document.getElementById(
+        "micButton"
+    ).onclick = startRecording;
+
+}
+
+
+/* RECORDING TIMER */
+
+function updateRecordingTime() {
+
+    recordingSeconds++;
+
+    let minutes =
+        Math.floor(recordingSeconds / 60);
+
+    let seconds =
+        recordingSeconds % 60;
+
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+
+    document.getElementById(
+        "recordTime"
+    ).textContent =
+        minutes + ":" + seconds;
+
+}
+
+
+/* CANCEL RECORDING */
+
+function cancelRecording() {
+
+    if (
+        mediaRecorder &&
+        mediaRecorder.state !== "inactive"
+    ) {
+
+        mediaRecorder.stop();
+
+    }
+
+    clearInterval(recordingTimer);
+
+    document.getElementById(
+        "recordingPanel"
+    ).classList.remove("active");
+
+    document.getElementById(
+        "micButton"
+    ).classList.remove("recording");
+
+    document.getElementById(
+        "micButton"
+    ).textContent = "🎙️";
+
+    document.getElementById(
+        "micButton"
+    ).onclick = startRecording;
+
+    audioChunks = [];
+
+}
+
+
+/* CANCEL PREVIEW */
+
+function cancelPreview() {
+
+    document.getElementById(
+        "preview"
+    ).style.display = "none";
+
+    document.getElementById(
+        "previewAudio"
+    ).pause();
+
+    audioBlob = null;
+
+}
+
+
+/* SEND AUDIO */
+
+function sendAudio() {
+
+    if (!audioBlob) {
+        return;
+    }
+
+    const messages =
+        document.getElementById("messages");
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message sent";
+
+    const duration =
+        formatTime(recordingSeconds);
+
+    const time =
+        new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+
+    message.innerHTML = `
+
+        <button
+            class="audio-play"
+            onclick="playRecordedAudio(this)">
+            ▶
+        </button>
+
+        <div class="audio-info">
+
+            <div class="waveform">
+
+                <span style="height:15px"></span>
+                <span style="height:24px"></span>
+                <span style="height:18px"></span>
+                <span style="height:28px"></span>
+                <span style="height:20px"></span>
+                <span style="height:13px"></span>
+                <span style="height:25px"></span>
+                <span style="height:17px"></span>
+                <span style="height:27px"></span>
+                <span style="height:14px"></span>
+                <span style="height:22px"></span>
+                <span style="height:11px"></span>
+
+            </div>
+
+            <div class="audio-bottom">
+
+                <span>${duration}</span>
+
+                <span>
+                    ${time}
+                    <span class="tick">✓✓</span>
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    message.dataset.audio =
+        audioURL;
+
+    messages.appendChild(message);
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+
+    document.getElementById(
+        "preview"
+    ).style.display = "none";
+
+
+    /*
+        Keep the audio URL available
+        for this browser session.
+    */
+
+    audioBlob = null;
+
+}
+
+
+/* PLAY RECORDED AUDIO */
+
+function playRecordedAudio(button) {
+
+    const message =
+        button.closest(".message");
+
+    const url =
+        message.dataset.audio;
+
+    if (!url) {
+        return;
+    }
+
+    let audio =
+        new Audio(url);
+
+    if (button.textContent === "▶") {
+
+        button.textContent = "⏸";
+
+        audio.play();
+
+        audio.onended = function() {
+
+            button.textContent = "▶";
+
+        };
+
+    }
+
+}
+
+
+/* PLAY DEMO AUDIO */
+
+function toggleAudio(button) {
+
+    if (button.textContent === "▶") {
+
+        button.textContent = "⏸";
+
+        setTimeout(function() {
+
+            button.textContent = "▶";
+
+        }, 3000);
+
+    }
+
+}
+
+
+/* FORMAT TIME */
+
+function formatTime(seconds) {
+
+    let minutes =
+        Math.floor(seconds / 60);
+
+    let remaining =
+        seconds % 60;
+
+    if (remaining < 10) {
+
+        remaining =
+            "0" + remaining;
+
+    }
+
+    return minutes + ":" + remaining;
+
+}
+
+</script>
+
+</body>
+</html>
+```
+
