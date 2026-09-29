@@ -1,0 +1,909 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Payments</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #d9dbd5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 500px;
+    height: 95vh;
+    background: #f0f2f5;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+/* HEADER */
+
+.header {
+    height: 70px;
+    background: #008069;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 15px;
+}
+
+.back {
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.header h2 {
+    font-size: 20px;
+}
+
+/* MAIN */
+
+.content {
+    height: calc(100% - 70px);
+    overflow-y: auto;
+}
+
+/* PAYMENT CARD */
+
+.payment-card {
+    background: white;
+    margin: 15px;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.payment-icon {
+    width: 65px;
+    height: 65px;
+    background: #d9fdd3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    font-size: 30px;
+}
+
+.payment-card h2 {
+    margin-top: 12px;
+}
+
+.payment-card p {
+    color: #667781;
+    margin-top: 7px;
+    font-size: 14px;
+}
+
+/* SEND MONEY */
+
+.section {
+    background: white;
+    margin: 15px;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.section-title {
+    font-size: 14px;
+    color: #667781;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* SEARCH */
+
+.search {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #f0f2f5;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+/* CONTACT */
+
+.contact {
+    display: flex;
+    align-items: center;
+    padding: 12px 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    gap: 12px;
+}
+
+.contact:hover {
+    background: #f5f5f5;
+}
+
+.contact img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-info h3 {
+    font-size: 16px;
+}
+
+.contact-info p {
+    color: #667781;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.pay-button {
+    background: #00a884;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+/* TRANSACTION */
+
+.transaction {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #d9fdd3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-info h4 {
+    font-size: 15px;
+}
+
+.transaction-info p {
+    font-size: 12px;
+    color: #667781;
+    margin-top: 4px;
+}
+
+.amount {
+    font-weight: bold;
+}
+
+.sent {
+    color: #e53935;
+}
+
+.received {
+    color: #00a884;
+}
+
+/* MODAL */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.modal-box {
+    width: 90%;
+    max-width: 380px;
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+}
+
+.modal-box h2 {
+    margin-bottom: 10px;
+}
+
+.modal-box p {
+    color: #667781;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.selected-user {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.selected-user img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.amount-input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #00a884;
+    font-size: 35px;
+    text-align: center;
+    padding: 10px;
+    outline: none;
+}
+
+.note-input {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.cancel {
+    background: #eee;
+}
+
+.continue {
+    background: #00a884;
+    color: white;
+}
+
+/* PIN */
+
+.pin-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 25px;
+    text-align: center;
+    letter-spacing: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+}
+
+/* SUCCESS */
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #d9fdd3;
+    color: #00a884;
+    font-size: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.success-message {
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.done-button {
+    width: 100%;
+    background: #00a884;
+    color: white;
+    border: none;
+    padding: 13px;
+    border-radius: 25px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:500px) {
+
+    body {
+        background: white;
+    }
+
+    .app {
+        height: 100vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="back">‹</div>
+
+        <h2>Payments</h2>
+
+    </div>
+
+
+    <div class="content">
+
+        <!-- PAYMENT INTRO -->
+
+        <div class="payment-card">
+
+            <div class="payment-icon">
+                ₹
+            </div>
+
+            <h2>WhatsApp Payments</h2>
+
+            <p>
+                Send and receive money securely
+                using this demo payment system.
+            </p>
+
+        </div>
+
+
+        <!-- CONTACTS -->
+
+        <div class="section">
+
+            <div class="section-title">
+                SEND MONEY
+            </div>
+
+            <input
+                class="search"
+                id="searchInput"
+                placeholder="🔍 Search contacts"
+                onkeyup="searchContacts()"
+            >
+
+
+            <div id="contactList">
+
+                <div class="contact"
+                     data-name="Rahul"
+                     onclick="openPayment('Rahul',
+                     'https://i.pravatar.cc/100?img=11')">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=11"
+                    >
+
+                    <div class="contact-info">
+
+                        <h3>Rahul</h3>
+
+                        <p>rahul@upi</p>
+
+                    </div>
+
+                    <button class="pay-button">
+                        Pay
+                    </button>
+
+                </div>
+
+
+                <div class="contact"
+                     data-name="Priya"
+                     onclick="openPayment('Priya',
+                     'https://i.pravatar.cc/100?img=47')">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=47"
+                    >
+
+                    <div class="contact-info">
+
+                        <h3>Priya</h3>
+
+                        <p>priya@upi</p>
+
+                    </div>
+
+                    <button class="pay-button">
+                        Pay
+                    </button>
+
+                </div>
+
+
+                <div class="contact"
+                     data-name="Arjun"
+                     onclick="openPayment('Arjun',
+                     'https://i.pravatar.cc/100?img=33')">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=33"
+                    >
+
+                    <div class="contact-info">
+
+                        <h3>Arjun</h3>
+
+                        <p>arjun@upi</p>
+
+                    </div>
+
+                    <button class="pay-button">
+                        Pay
+                    </button>
+
+                </div>
+
+
+                <div class="contact"
+                     data-name="Sneha"
+                     onclick="openPayment('Sneha',
+                     'https://i.pravatar.cc/100?img=44')">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=44"
+                    >
+
+                    <div class="contact-info">
+
+                        <h3>Sneha</h3>
+
+                        <p>sneha@upi</p>
+
+                    </div>
+
+                    <button class="pay-button">
+                        Pay
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TRANSACTION HISTORY -->
+
+        <div class="section">
+
+            <div class="section-title">
+                TRANSACTION HISTORY
+            </div>
+
+            <div id="transactions">
+
+                <div class="transaction">
+
+                    <div class="transaction-icon">
+                        ↑
+                    </div>
+
+                    <div class="transaction-info">
+
+                        <h4>Rahul</h4>
+
+                        <p>Today, 4:20 PM</p>
+
+                    </div>
+
+                    <div class="amount sent">
+                        - ₹500
+                    </div>
+
+                </div>
+
+
+                <div class="transaction">
+
+                    <div class="transaction-icon">
+                        ↓
+                    </div>
+
+                    <div class="transaction-info">
+
+                        <h4>Priya</h4>
+
+                        <p>Yesterday, 6:15 PM</p>
+
+                    </div>
+
+                    <div class="amount received">
+                        + ₹1,000
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PAYMENT MODAL -->
+
+<div class="modal" id="paymentModal">
+
+    <div class="modal-box">
+
+        <h2>Send Money</h2>
+
+        <p>Enter the amount you want to send</p>
+
+
+        <div class="selected-user">
+
+            <img id="selectedImage">
+
+            <strong id="selectedName"></strong>
+
+        </div>
+
+
+        <input
+            type="number"
+            class="amount-input"
+            id="amountInput"
+            placeholder="₹0"
+            min="1"
+        >
+
+
+        <input
+            type="text"
+            class="note-input"
+            id="noteInput"
+            placeholder="Add a note (optional)"
+        >
+
+
+        <div class="modal-buttons">
+
+            <button
+                class="cancel"
+                onclick="closePayment()">
+                Cancel
+            </button>
+
+            <button
+                class="continue"
+                onclick="continuePayment()">
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PIN MODAL -->
+
+<div class="modal" id="pinModal">
+
+    <div class="modal-box">
+
+        <h2>Enter UPI PIN</h2>
+
+        <p>
+            Enter your 4-digit demo UPI PIN
+        </p>
+
+        <input
+            type="password"
+            class="pin-input"
+            id="pinInput"
+            maxlength="4"
+            inputmode="numeric"
+            placeholder="••••"
+        >
+
+        <div class="modal-buttons">
+
+            <button
+                class="cancel"
+                onclick="closePin()">
+                Cancel
+            </button>
+
+            <button
+                class="continue"
+                onclick="processPayment()">
+                Pay
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SUCCESS MODAL -->
+
+<div class="modal" id="successModal">
+
+    <div class="modal-box">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h2 style="margin-top:15px;">
+            Payment Successful
+        </h2>
+
+        <p
+            class="success-message"
+            id="successMessage">
+        </p>
+
+        <button
+            class="done-button"
+            onclick="closeSuccess()">
+            Done
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let selectedPerson = "";
+let selectedPersonImage = "";
+let selectedAmount = 0;
+
+
+/* OPEN PAYMENT */
+
+function openPayment(name, image) {
+
+    selectedPerson = name;
+    selectedPersonImage = image;
+
+    document.getElementById("selectedName").textContent =
+        name;
+
+    document.getElementById("selectedImage").src =
+        image;
+
+    document.getElementById("amountInput").value = "";
+
+    document.getElementById("noteInput").value = "";
+
+    document.getElementById("paymentModal").style.display =
+        "flex";
+
+}
+
+
+/* CLOSE PAYMENT */
+
+function closePayment() {
+
+    document.getElementById("paymentModal").style.display =
+        "none";
+
+}
+
+
+/* CONTINUE */
+
+function continuePayment() {
+
+    const amount =
+        document.getElementById("amountInput").value;
+
+    if (!amount || Number(amount) <= 0) {
+
+        alert("Please enter a valid amount.");
+
+        return;
+
+    }
+
+    selectedAmount = Number(amount);
+
+    closePayment();
+
+    document.getElementById("pinInput").value = "";
+
+    document.getElementById("pinModal").style.display =
+        "flex";
+
+}
+
+
+/* CLOSE PIN */
+
+function closePin() {
+
+    document.getElementById("pinModal").style.display =
+        "none";
+
+}
+
+
+/* PROCESS PAYMENT */
+
+function processPayment() {
+
+    const pin =
+        document.getElementById("pinInput").value;
+
+    if (pin.length !== 4) {
+
+        alert("Please enter a 4-digit demo PIN.");
+
+        return;
+
+    }
+
+    /*
+       DEMO ONLY
+
+       No real bank transaction happens here.
+    */
+
+    closePin();
+
+    document.getElementById("successMessage").textContent =
+        "₹" + selectedAmount.toLocaleString() +
+        " sent successfully to " +
+        selectedPerson + ".";
+
+    addTransaction();
+
+    document.getElementById("successModal").style.display =
+        "flex";
+
+}
+
+
+/* ADD TRANSACTION */
+
+function addTransaction() {
+
+    const transactions =
+        document.getElementById("transactions");
+
+    const transaction =
+        document.createElement("div");
+
+    transaction.className = "transaction";
+
+    transaction.innerHTML = `
+
+        <div class="transaction-icon">
+            ↑
+        </div>
+
+        <div class="transaction-info">
+
+            <h4>${escapeHTML(selectedPerson)}</h4>
+
+            <p>Just now</p>
+
+        </div>
+
+        <div class="amount sent">
+            - ₹${selectedAmount.toLocaleString()}
+        </div>
+    `;
+
+    transactions.prepend(transaction);
+
+}
+
+
+/* CLOSE SUCCESS */
+
+function closeSuccess() {
+
+    document.getElementById("successModal").style.display =
+        "none";
+
+}
+
+
+/* SEARCH CONTACTS */
+
+function searchContacts() {
+
+    const search =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const contacts =
+        document.querySelectorAll(".contact");
+
+    contacts.forEach(function(contact) {
+
+        const name =
+            contact.dataset.name.toLowerCase();
+
+        if (name.includes(search)) {
+
+            contact.style.display = "flex";
+
+        } else {
+
+            contact.style.display = "none";
+
+        }
+
+    });
+
+}
+
+
+/* ESCAPE HTML */
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+</body>
+</html>
+```
+
