@@ -1,0 +1,596 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Messaging</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #d9dbd5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 1200px;
+    height: 95vh;
+    display: flex;
+    background: white;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+}
+
+/* LEFT SIDE */
+
+.sidebar {
+    width: 35%;
+    border-right: 1px solid #ddd;
+    background: #fff;
+}
+
+.sidebar-header {
+    height: 70px;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile img,
+.chat img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.header-icons {
+    display: flex;
+    gap: 20px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.search-box {
+    padding: 10px;
+    background: #fff;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 11px 15px;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background: #f0f2f5;
+}
+
+.chat-list {
+    overflow-y: auto;
+    height: calc(100% - 125px);
+}
+
+.chat {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    gap: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.chat:hover,
+.chat.active {
+    background: #f0f2f5;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-info h4 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.chat-info p {
+    color: #667781;
+    font-size: 14px;
+}
+
+.chat-time {
+    font-size: 12px;
+    color: #667781;
+}
+
+/* RIGHT SIDE */
+
+.message-area {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    background: #efeae2;
+}
+
+.message-header {
+    height: 70px;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 12px;
+}
+
+.message-header h4 {
+    font-size: 16px;
+}
+
+.message-header p {
+    font-size: 13px;
+    color: #667781;
+    margin-top: 3px;
+}
+
+.messages {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-image:
+        radial-gradient(#ddd 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.message {
+    max-width: 65%;
+    padding: 8px 10px 5px;
+    border-radius: 8px;
+    font-size: 14px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.received {
+    background: white;
+    align-self: flex-start;
+}
+
+.sent {
+    background: #d9fdd3;
+    align-self: flex-end;
+}
+
+.message-time {
+    font-size: 10px;
+    color: #667781;
+    margin-left: 8px;
+    float: right;
+    margin-top: 5px;
+}
+
+.tick {
+    color: #53bdeb;
+    font-size: 13px;
+    margin-left: 3px;
+}
+
+/* MESSAGE INPUT */
+
+.input-area {
+    height: 65px;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 10px;
+}
+
+.input-area button {
+    border: none;
+    background: none;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.message-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.send-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #00a884 !important;
+    color: white;
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+
+    .app {
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 35%;
+    }
+
+    .message-area {
+        width: 65%;
+    }
+
+    .profile span,
+    .header-icons {
+        display: none;
+    }
+
+    .chat-info {
+        display: none;
+    }
+
+    .chat {
+        justify-content: center;
+    }
+
+    .message {
+        max-width: 85%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="profile">
+                <img src="https://i.pravatar.cc/100?img=12">
+                <span><b>My Account</b></span>
+            </div>
+
+            <div class="header-icons">
+                ⋮
+            </div>
+
+        </div>
+
+        <div class="search-box">
+            <input
+                type="text"
+                id="search"
+                placeholder="🔍 Search or start new chat"
+                onkeyup="searchChats()"
+            >
+        </div>
+
+        <div class="chat-list" id="chatList">
+
+            <div class="chat active"
+                 onclick="openChat('Rahul','Online','https://i.pravatar.cc/100?img=11')">
+
+                <img src="https://i.pravatar.cc/100?img=11">
+
+                <div class="chat-info">
+                    <h4>Rahul</h4>
+                    <p>Hey! How are you?</p>
+                </div>
+
+                <div class="chat-time">4:30 PM</div>
+
+            </div>
+
+
+            <div class="chat"
+                 onclick="openChat('Priya','Last seen today at 3:45 PM','https://i.pravatar.cc/100?img=47')">
+
+                <img src="https://i.pravatar.cc/100?img=47">
+
+                <div class="chat-info">
+                    <h4>Priya</h4>
+                    <p>See you tomorrow!</p>
+                </div>
+
+                <div class="chat-time">3:45 PM</div>
+
+            </div>
+
+
+            <div class="chat"
+                 onclick="openChat('Arjun','Online','https://i.pravatar.cc/100?img=33')">
+
+                <img src="https://i.pravatar.cc/100?img=33">
+
+                <div class="chat-info">
+                    <h4>Arjun</h4>
+                    <p>Send me the file.</p>
+                </div>
+
+                <div class="chat-time">2:20 PM</div>
+
+            </div>
+
+
+            <div class="chat"
+                 onclick="openChat('Sneha','Last seen yesterday','https://i.pravatar.cc/100?img=44')">
+
+                <img src="https://i.pravatar.cc/100?img=44">
+
+                <div class="chat-info">
+                    <h4>Sneha</h4>
+                    <p>Thank you!</p>
+                </div>
+
+                <div class="chat-time">Yesterday</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MESSAGE AREA -->
+
+    <div class="message-area">
+
+        <div class="message-header">
+
+            <img id="headerImage"
+                 src="https://i.pravatar.cc/100?img=11"
+                 style="width:45px;height:45px;border-radius:50%;">
+
+            <div>
+                <h4 id="contactName">Rahul</h4>
+                <p id="contactStatus">Online</p>
+            </div>
+
+        </div>
+
+
+        <div class="messages" id="messages">
+
+            <div class="message received">
+                Hey! How are you?
+                <span class="message-time">4:28 PM</span>
+            </div>
+
+            <div class="message sent">
+                I'm good! How about you?
+                <span class="message-time">
+                    4:29 PM <span class="tick">✓✓</span>
+                </span>
+            </div>
+
+            <div class="message received">
+                I'm doing great! 😊
+                <span class="message-time">4:30 PM</span>
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="input-area">
+
+            <button onclick="addEmoji()">😊</button>
+
+            <input
+                type="text"
+                class="message-input"
+                id="messageInput"
+                placeholder="Type a message"
+                onkeydown="handleEnter(event)"
+            >
+
+            <button class="send-btn" onclick="sendMessage()">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let currentUser = "Rahul";
+
+
+// OPEN CHAT
+
+function openChat(name, status, image) {
+
+    currentUser = name;
+
+    document.getElementById("contactName").textContent = name;
+
+    document.getElementById("contactStatus").textContent = status;
+
+    document.getElementById("headerImage").src = image;
+
+    const messages = document.getElementById("messages");
+
+    messages.innerHTML = `
+        <div class="message received">
+            Hey! How are you?
+            <span class="message-time">4:28 PM</span>
+        </div>
+
+        <div class="message sent">
+            I'm good! How about you?
+            <span class="message-time">
+                4:29 PM <span class="tick">✓✓</span>
+            </span>
+        </div>
+    `;
+
+}
+
+
+// SEND MESSAGE
+
+function sendMessage() {
+
+    const input = document.getElementById("messageInput");
+
+    const message = input.value.trim();
+
+    if (message === "") {
+        return;
+    }
+
+    const messages = document.getElementById("messages");
+
+    const time = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    const newMessage = document.createElement("div");
+
+    newMessage.className = "message sent";
+
+    newMessage.innerHTML = `
+        ${escapeHTML(message)}
+        <span class="message-time">
+            ${time}
+            <span class="tick">✓✓</span>
+        </span>
+    `;
+
+    messages.appendChild(newMessage);
+
+    input.value = "";
+
+    messages.scrollTop = messages.scrollHeight;
+
+
+    // DEMO AUTO REPLY
+
+    setTimeout(function() {
+
+        const reply = document.createElement("div");
+
+        reply.className = "message received";
+
+        reply.innerHTML = `
+            Okay 👍
+            <span class="message-time">
+                ${new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+            </span>
+        `;
+
+        messages.appendChild(reply);
+
+        messages.scrollTop = messages.scrollHeight;
+
+    }, 1000);
+
+}
+
+
+// ENTER KEY
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+
+}
+
+
+// EMOJI
+
+function addEmoji() {
+
+    const input = document.getElementById("messageInput");
+
+    input.value += " 😊";
+
+    input.focus();
+
+}
+
+
+// SEARCH
+
+function searchChats() {
+
+    const search =
+        document.getElementById("search").value.toLowerCase();
+
+    const chats =
+        document.querySelectorAll(".chat");
+
+    chats.forEach(function(chat) {
+
+        const name =
+            chat.querySelector("h4").textContent.toLowerCase();
+
+        if (name.includes(search)) {
+            chat.style.display = "flex";
+        } else {
+            chat.style.display = "none";
+        }
+
+    });
+
+}
+
+
+// SECURITY
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+</body>
+</html>
+```
+
