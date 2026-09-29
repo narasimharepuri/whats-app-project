@@ -1,0 +1,986 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Status</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #d9dbd5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 500px;
+    height: 95vh;
+    background: #fff;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+/* HEADER */
+
+.header {
+    height: 70px;
+    background: #008069;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.header h2 {
+    font-size: 22px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 22px;
+    font-size: 22px;
+}
+
+/* STATUS CONTENT */
+
+.content {
+    height: calc(100% - 70px);
+    overflow-y: auto;
+    background: #f0f2f5;
+}
+
+.section-title {
+    padding: 15px;
+    color: #667781;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* MY STATUS */
+
+.my-status {
+    background: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 15px;
+}
+
+.profile-container {
+    position: relative;
+}
+
+.profile {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.add-button {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #00a884;
+    color: white;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.status-info h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.status-info p {
+    color: #667781;
+    font-size: 14px;
+}
+
+/* STATUS LIST */
+
+.status-list {
+    background: white;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    gap: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.status-item:hover {
+    background: #f5f5f5;
+}
+
+.status-ring {
+    width: 58px;
+    height: 58px;
+    padding: 3px;
+    border-radius: 50%;
+    background: #00a884;
+}
+
+.status-ring img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid white;
+    object-fit: cover;
+}
+
+.status-details {
+    flex: 1;
+}
+
+.status-details h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.status-details p {
+    color: #667781;
+    font-size: 13px;
+}
+
+/* ADD STATUS MODAL */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.modal-box {
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.modal-box h2 {
+    margin-bottom: 20px;
+}
+
+.modal-box textarea {
+    width: 100%;
+    height: 100px;
+    resize: none;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.modal-buttons button {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.cancel {
+    background: #eee;
+}
+
+.post {
+    background: #00a884;
+    color: white;
+}
+
+/* STATUS VIEWER */
+
+.viewer {
+    position: fixed;
+    inset: 0;
+    background: #111;
+    display: none;
+    flex-direction: column;
+    z-index: 20;
+    color: white;
+}
+
+.progress-container {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+}
+
+.progress {
+    height: 3px;
+    background: #777;
+    flex: 1;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: white;
+}
+
+.viewer-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    gap: 12px;
+}
+
+.viewer-header img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.viewer-header-info {
+    flex: 1;
+}
+
+.viewer-header-info h3 {
+    font-size: 15px;
+}
+
+.viewer-header-info p {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.close {
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.viewer-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.viewer-content img {
+    max-width: 90%;
+    max-height: 75%;
+    object-fit: contain;
+}
+
+.text-status {
+    max-width: 80%;
+    text-align: center;
+    font-size: 30px;
+    line-height: 1.4;
+}
+
+.viewer-controls {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.viewer-controls button {
+    width: 30%;
+    height: 80%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* DELETE */
+
+.delete-button {
+    display: none;
+    background: #e53935;
+    color: white;
+    border: none;
+    padding: 9px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* MOBILE */
+
+@media(max-width: 500px) {
+
+    body {
+        background: white;
+    }
+
+    .app {
+        height: 100vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h2>Status</h2>
+
+        <div class="header-icons">
+            🔍
+            ⋮
+        </div>
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <div class="section-title">
+            My status
+        </div>
+
+
+        <!-- MY STATUS -->
+
+        <div class="my-status" onclick="openAddStatus()">
+
+            <div class="profile-container">
+
+                <img
+                    class="profile"
+                    src="https://i.pravatar.cc/100?img=12"
+                >
+
+                <div class="add-button">
+                    +
+                </div>
+
+            </div>
+
+            <div class="status-info">
+
+                <h3>My status</h3>
+
+                <p id="myStatusText">
+                    Click to add status
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- RECENT -->
+
+        <div class="section-title">
+            Recent updates
+        </div>
+
+
+        <div class="status-list" id="statusList">
+
+            <div class="status-item"
+                 onclick="openStatus(0)">
+
+                <div class="status-ring">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=11"
+                    >
+
+                </div>
+
+                <div class="status-details">
+
+                    <h3>Rahul</h3>
+
+                    <p>Today, 4:30 PM</p>
+
+                </div>
+
+            </div>
+
+
+            <div class="status-item"
+                 onclick="openStatus(1)">
+
+                <div class="status-ring">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=47"
+                    >
+
+                </div>
+
+                <div class="status-details">
+
+                    <h3>Priya</h3>
+
+                    <p>Today, 3:45 PM</p>
+
+                </div>
+
+            </div>
+
+
+            <div class="status-item"
+                 onclick="openStatus(2)">
+
+                <div class="status-ring">
+
+                    <img
+                        src="https://i.pravatar.cc/100?img=33"
+                    >
+
+                </div>
+
+                <div class="status-details">
+
+                    <h3>Arjun</h3>
+
+                    <p>Today, 2:20 PM</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ADD STATUS MODAL -->
+
+<div class="modal" id="addModal">
+
+    <div class="modal-box">
+
+        <h2>Add Status</h2>
+
+        <textarea
+            id="statusText"
+            placeholder="Type your status..."
+        ></textarea>
+
+        <div class="modal-buttons">
+
+            <button
+                class="cancel"
+                onclick="closeAddStatus()">
+                Cancel
+            </button>
+
+            <button
+                class="post"
+                onclick="postStatus()">
+                Post
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- STATUS VIEWER -->
+
+<div class="viewer" id="viewer">
+
+    <!-- PROGRESS -->
+
+    <div class="progress-container" id="progressContainer">
+    </div>
+
+
+    <!-- HEADER -->
+
+    <div class="viewer-header">
+
+        <img
+            id="viewerImage"
+            src=""
+        >
+
+        <div class="viewer-header-info">
+
+            <h3 id="viewerName">
+                Rahul
+            </h3>
+
+            <p id="viewerTime">
+                Today
+            </p>
+
+        </div>
+
+        <button
+            class="delete-button"
+            id="deleteButton"
+            onclick="deleteMyStatus()">
+            Delete
+        </button>
+
+        <div
+            class="close"
+            onclick="closeViewer()">
+            ×
+        </div>
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="viewer-content">
+
+        <div id="viewerStatus">
+        </div>
+
+        <div class="viewer-controls">
+
+            <button onclick="previousStatus()"></button>
+
+            <button onclick="nextStatus()"></button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* STATUS DATA */
+
+const statuses = [
+
+    {
+        name: "Rahul",
+        image: "https://i.pravatar.cc/100?img=11",
+        type: "text",
+        content: "Enjoying the evening! 🌅",
+        time: "Today, 4:30 PM"
+    },
+
+    {
+        name: "Priya",
+        image: "https://i.pravatar.cc/100?img=47",
+        type: "image",
+        content: "https://picsum.photos/700/1000?random=10",
+        time: "Today, 3:45 PM"
+    },
+
+    {
+        name: "Arjun",
+        image: "https://i.pravatar.cc/100?img=33",
+        type: "text",
+        content: "Great day! 😎",
+        time: "Today, 2:20 PM"
+    }
+
+];
+
+let currentStatus = 0;
+
+let myStatus = null;
+
+let progressTimer;
+
+
+/* OPEN ADD STATUS */
+
+function openAddStatus() {
+
+    document.getElementById("addModal").style.display = "flex";
+
+}
+
+
+/* CLOSE ADD STATUS */
+
+function closeAddStatus() {
+
+    document.getElementById("addModal").style.display = "none";
+
+}
+
+
+/* POST STATUS */
+
+function postStatus() {
+
+    const text =
+        document.getElementById("statusText").value.trim();
+
+    if (text === "") {
+
+        alert("Please enter a status.");
+
+        return;
+
+    }
+
+    myStatus = {
+
+        name: "My status",
+
+        image: "https://i.pravatar.cc/100?img=12",
+
+        type: "text",
+
+        content: text,
+
+        time: "Just now"
+
+    };
+
+    document.getElementById("myStatusText").textContent =
+        "Just now";
+
+    closeAddStatus();
+
+    document.getElementById("statusText").value = "";
+
+    alert("Status posted successfully!");
+
+}
+
+
+/* OPEN STATUS */
+
+function openStatus(index) {
+
+    currentStatus = index;
+
+    showStatus();
+
+    document.getElementById("viewer").style.display = "flex";
+
+}
+
+
+/* SHOW STATUS */
+
+function showStatus() {
+
+    clearInterval(progressTimer);
+
+    let status;
+
+    if (currentStatus === -1 && myStatus) {
+
+        status = myStatus;
+
+    } else {
+
+        status = statuses[currentStatus];
+
+    }
+
+    document.getElementById("viewerName").textContent =
+        status.name;
+
+    document.getElementById("viewerTime").textContent =
+        status.time;
+
+    document.getElementById("viewerImage").src =
+        status.image;
+
+
+    const content =
+        document.getElementById("viewerStatus");
+
+    content.innerHTML = "";
+
+    if (status.type === "image") {
+
+        const image = document.createElement("img");
+
+        image.src = status.content;
+
+        content.appendChild(image);
+
+    } else {
+
+        const text = document.createElement("div");
+
+        text.className = "text-status";
+
+        text.textContent = status.content;
+
+        content.appendChild(text);
+
+    }
+
+
+    /* DELETE BUTTON */
+
+    const deleteButton =
+        document.getElementById("deleteButton");
+
+    if (currentStatus === -1 && myStatus) {
+
+        deleteButton.style.display = "block";
+
+    } else {
+
+        deleteButton.style.display = "none";
+
+    }
+
+
+    /* PROGRESS BARS */
+
+    const progressContainer =
+        document.getElementById("progressContainer");
+
+    progressContainer.innerHTML = "";
+
+    let totalStatuses = statuses.length;
+
+    if (myStatus) {
+
+        totalStatuses++;
+
+    }
+
+    for (let i = 0; i < totalStatuses; i++) {
+
+        const progress =
+            document.createElement("div");
+
+        progress.className = "progress";
+
+        const fill =
+            document.createElement("div");
+
+        fill.className = "progress-fill";
+
+        if (i < currentStatus) {
+
+            fill.style.width = "100%";
+
+        }
+
+        progress.appendChild(fill);
+
+        progressContainer.appendChild(progress);
+
+    }
+
+
+    /* TIMER */
+
+    let width = 0;
+
+    const currentProgress =
+        progressContainer.children[
+            currentStatus === -1 ? totalStatuses - 1 : currentStatus
+        ];
+
+    if (currentProgress) {
+
+        const fill =
+            currentProgress.querySelector(".progress-fill");
+
+        progressTimer = setInterval(function() {
+
+            width += 1;
+
+            fill.style.width = width + "%";
+
+            if (width >= 100) {
+
+                clearInterval(progressTimer);
+
+                nextStatus();
+
+            }
+
+        }, 50);
+
+    }
+
+}
+
+
+/* NEXT */
+
+function nextStatus() {
+
+    clearInterval(progressTimer);
+
+    if (myStatus && currentStatus < 0) {
+
+        currentStatus = 0;
+
+    } else {
+
+        currentStatus++;
+
+    }
+
+    if (currentStatus >= statuses.length) {
+
+        if (myStatus) {
+
+            currentStatus = -1;
+
+            showStatus();
+
+        } else {
+
+            closeViewer();
+
+        }
+
+    } else {
+
+        showStatus();
+
+    }
+
+}
+
+
+/* PREVIOUS */
+
+function previousStatus() {
+
+    clearInterval(progressTimer);
+
+    if (currentStatus === -1) {
+
+        currentStatus = statuses.length - 1;
+
+    } else {
+
+        currentStatus--;
+
+        if (currentStatus < 0) {
+
+            if (myStatus) {
+
+                currentStatus = -1;
+
+            } else {
+
+                currentStatus = statuses.length - 1;
+
+            }
+
+        }
+
+    }
+
+    showStatus();
+
+}
+
+
+/* DELETE MY STATUS */
+
+function deleteMyStatus() {
+
+    myStatus = null;
+
+    document.getElementById("myStatusText").textContent =
+        "Click to add status";
+
+    closeViewer();
+
+    alert("Your status has been deleted.");
+
+}
+
+
+/* CLOSE VIEWER */
+
+function closeViewer() {
+
+    clearInterval(progressTimer);
+
+    document.getElementById("viewer").style.display = "none";
+
+}
+
+
+/* KEYBOARD CONTROLS */
+
+document.addEventListener("keydown", function(event) {
+
+    const viewer =
+        document.getElementById("viewer");
+
+    if (viewer.style.display === "flex") {
+
+        if (event.key === "ArrowRight") {
+
+            nextStatus();
+
+        }
+
+        if (event.key === "ArrowLeft") {
+
+            previousStatus();
+
+        }
+
+        if (event.key === "Escape") {
+
+            closeViewer();
+
+        }
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
+```
+
